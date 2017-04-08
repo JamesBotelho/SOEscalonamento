@@ -1,7 +1,6 @@
 package Principal;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +17,16 @@ public class Main {
 
     private static ArrayList<Processo> p = new ArrayList<>();
 
+    private static void algFCFS() {
+        Collections.sort(p, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                Processo p1 = (Processo) o1;
+                Processo p2 = (Processo) o2;
+                return p1.getChegada() < p2.getChegada() ? -1 : (p1.getChegada() > p2.getChegada() ? +1 : 0);
+            }
+        });
+    }
 
     private static void LeArquivo(String arq) {
         FileInputStream stream = null;
@@ -83,6 +92,7 @@ public class Main {
 
         LeArquivo(arq);
         exibeArray();
+        algFCFS();
         exibeArray();
     }
 }
