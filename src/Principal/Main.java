@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,8 +17,16 @@ import java.util.Comparator;
 public class Main {
 
     private static ArrayList<Processo> p = new ArrayList<>();
+    private static DecimalFormat f = new DecimalFormat("#.#");
 
     private static void algFCFS() {
+        float temp_espera = 0;
+        float temp_retorno = 0;
+        int difcheg = 0;
+        float aux = 0;
+        float aux1 = 0;
+        
+        //Ordenação
         Collections.sort(p, new Comparator() {
             @Override
             public int compare(Object o1, Object o2) {
@@ -26,6 +35,21 @@ public class Main {
                 return p1.getChegada() < p2.getChegada() ? -1 : (p1.getChegada() > p2.getChegada() ? +1 : 0);
             }
         });
+        
+        //Cálculo do tempo
+        for (int i = 0; i < p.size(); i++) {
+            if (i != 0) {
+                difcheg = p.get(i).getChegada() - p.get(i - 1).getChegada();
+                aux = (p.get(i - 1).getDuracao() - difcheg) + aux;
+                temp_espera = aux + temp_espera;
+                aux1 = aux1 + (p.get(i).getDuracao() - difcheg);
+                temp_retorno = temp_retorno + aux1;
+            } else {
+                temp_retorno = p.get(i).getDuracao();
+                aux1 = temp_retorno;
+            }
+        }
+        System.out.println("FCFS " + f.format(temp_retorno/p.size()) + " " + f.format(temp_espera/p.size()) + " " + f.format(temp_espera/p.size()));
     }
 
     private static void LeArquivo(String arq) {
@@ -91,8 +115,8 @@ public class Main {
         }
 
         LeArquivo(arq);
-        exibeArray();
+        //exibeArray();
         algFCFS();
-        exibeArray();
+        //exibeArray();
     }
 }
