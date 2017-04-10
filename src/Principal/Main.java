@@ -19,13 +19,43 @@ public class Main {
     private static ArrayList<Processo> p = new ArrayList<>();
     private static DecimalFormat f = new DecimalFormat("#.#");
 
+    private static void algRR() {
+        int tempo_corrido = p.get(0).getChegada();
+        int quantum = 2;
+        int contador = 0;
+        int cont_exec = 0;
+        int cont_processo = 1;
+        ArrayList<Processo> exec = new ArrayList<>();
+        exec.add(p.get(0));
+        Processo p_temp = exec.get(0);
+        
+        while(!exec.isEmpty()){
+            p_temp.setTmprest(p_temp.getTmprest() - 1);
+            contador++;
+            tempo_corrido++;
+            
+            if(p_temp.getTmprest() == 0){ //Se o processo acaba, remove da fila de execução
+                exec.remove(cont_exec);
+                contador = 0;
+            }else if(contador == quantum){ //Retira do processamento e substitui
+                exec.set(cont_exec, p_temp);
+                contador = 0;
+                cont_exec++;
+            }
+            if(p.get(cont_processo).getChegada() == tempo_corrido){
+                exec.add(p.get(cont_processo));
+                cont_processo++;
+            }
+        }
+    }
+
     private static void algFCFS() {
         float temp_espera = 0;
         float temp_retorno = 0;
         int difcheg = 0;
         float aux = 0;
         float aux1 = 0;
-        
+
         //Ordenação
         Collections.sort(p, new Comparator() {
             @Override
@@ -35,7 +65,7 @@ public class Main {
                 return p1.getChegada() < p2.getChegada() ? -1 : (p1.getChegada() > p2.getChegada() ? +1 : 0);
             }
         });
-        
+
         //Cálculo do tempo
         for (int i = 0; i < p.size(); i++) {
             if (i != 0) {
@@ -49,7 +79,7 @@ public class Main {
                 aux1 = temp_retorno;
             }
         }
-        System.out.println("FCFS " + f.format(temp_retorno/p.size()) + " " + f.format(temp_espera/p.size()) + " " + f.format(temp_espera/p.size()));
+        System.out.println("FCFS " + f.format(temp_retorno / p.size()) + " " + f.format(temp_espera / p.size()) + " " + f.format(temp_espera / p.size()));
     }
 
     private static void LeArquivo(String arq) {
@@ -118,5 +148,6 @@ public class Main {
         //exibeArray();
         algFCFS();
         //exibeArray();
+        algRR();
     }
 }
