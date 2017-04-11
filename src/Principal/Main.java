@@ -23,7 +23,6 @@ public class Main {
         int tempo_corrido = p.get(0).getChegada();
         int quantum = 2;
         int contador = 0;
-        boolean execucao = true;
         ArrayList<Processo> exec = new ArrayList<>(); //Fila de prontos
         ArrayList<Processo> conc = new ArrayList<>(); //Fila de concluídos
         for (Processo p1 : p) {
@@ -34,6 +33,8 @@ public class Main {
 
         Processo p_temp = exec.get(0);
         exec.remove(0);
+        p_temp.setTemp_resp(tempo_corrido - p_temp.getChegada());
+        p_temp.setPexec(false);
 
         while (true) {
             if (p_temp == null) {
@@ -42,7 +43,11 @@ public class Main {
                 }
                 p_temp = exec.get(0);
                 exec.remove(0);
-                p_temp.setEspera_pronto(p_temp.getEspera_pronto() + (tempo_corrido - p_temp.getChegada()));
+                p_temp.setEspera_pronto(p_temp.getEspera_pronto() + (tempo_corrido - p_temp.getContexto()));
+                if(p_temp.isPexec()){
+                    p_temp.setPexec(false);
+                    p_temp.setTemp_resp(tempo_corrido - p_temp.getChegada());
+                }
             }
             //CPU
             p_temp.setTmprest(p_temp.getTmprest() - 1);
@@ -58,24 +63,26 @@ public class Main {
 
             if (p_temp.getTmprest() == 0) { //Se o processo acaba, remove da CPU
                 contador = 0;
-                //System.out.println("Na CPU: " + p_temp.getNome());
+                p_temp.setTemp_ret(tempo_corrido - p_temp.getChegada());
                 conc.add(p_temp);
                 p_temp = null;
             } else if (contador == quantum) { //Retira do processamento e joga na fila
-                //System.out.println("Na CPU: " + p_temp.getNome());
-                p_temp.setChegada(tempo_corrido);
+                p_temp.setContexto(tempo_corrido);
                 exec.add(p_temp);
                 contador = 0;
                 p_temp = null;
             }
         }
         float temp_espera = 0;
+        float temp_resposta = 0;
+        float temp_retorno = 0;
         for(int i = 0; i < conc.size(); i++){
-            System.out.println(conc.get(i).getNome() + " ficou " + conc.get(i).getEspera_pronto());
             temp_espera = temp_espera + conc.get(i).getEspera_pronto();
+            temp_resposta = temp_resposta + conc.get(i).getTemp_resp();
+            temp_retorno = temp_retorno + conc.get(i).getTemp_ret();
         }
         
-        System.out.println("RR " + f.format(temp_espera/conc.size()));
+        System.out.println("RR " + f.format(temp_retorno/conc.size()) + " " + f.format(temp_resposta/conc.size()) + " " + f.format(temp_espera/conc.size()));
     }
 
     private static void algFCFS() {

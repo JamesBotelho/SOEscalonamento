@@ -15,13 +15,21 @@ public class Processo {
     private int tmprest;
     private int chegada;
     private int espera_pronto;
+    private int temp_resp;
+    private int temp_ret;
+    private int contexto;
+    private boolean pexec;
 
     public Processo(String nome, int duracao, int tempo, int chegada) {
         this.nome = nome;
         this.duracao = duracao;
         this.tmprest = tempo;
         this.chegada = chegada;
+        this.contexto = chegada;
         this.espera_pronto = 0;
+        this.pexec = true;
+        this.temp_resp = 0;
+        this.temp_ret = 0;
     }
 
     public String getNome() {
@@ -71,9 +79,42 @@ public class Processo {
     public void setEspera_pronto(int espera_pronto) {
         this.espera_pronto = espera_pronto;
     }
-    
-    
 
+    public int getTemp_resp() {
+        return temp_resp;
+    }
+
+    public void setTemp_resp(int temp_resp) {
+        this.temp_resp = temp_resp;
+    }
+
+    public boolean isPexec() {
+        return pexec;
+    }
+
+    public void setPexec(boolean pexec) {
+        this.pexec = pexec;
+    }
+
+    public int getTemp_ret() {
+        return temp_ret;
+    }
+
+    public void setTemp_ret(int temp_ret) {
+        this.temp_ret = temp_ret;
+    }
+
+    public int getContexto() {
+        return contexto;
+    }
+
+    public void setContexto(int contexto) {
+        this.contexto = contexto;
+    }
+    
+    
+    
+    
     @Override
     public String toString() {
         return "Processo{" + "nome=" + nome + ", duracao=" + duracao + ", tmprest=" + tmprest + ", chegada=" + chegada + '}';
