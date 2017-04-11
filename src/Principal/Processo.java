@@ -14,12 +14,14 @@ public class Processo {
     private int duracao;
     private int tmprest;
     private int chegada;
+    private int espera_pronto;
 
     public Processo(String nome, int duracao, int tempo, int chegada) {
         this.nome = nome;
         this.duracao = duracao;
         this.tmprest = tempo;
         this.chegada = chegada;
+        this.espera_pronto = 0;
     }
 
     public String getNome() {
@@ -61,6 +63,16 @@ public class Processo {
     public void setChegada(int chegada) {
         this.chegada = chegada;
     }
+
+    public int getEspera_pronto() {
+        return espera_pronto;
+    }
+
+    public void setEspera_pronto(int espera_pronto) {
+        this.espera_pronto = espera_pronto;
+    }
+    
+    
 
     @Override
     public String toString() {

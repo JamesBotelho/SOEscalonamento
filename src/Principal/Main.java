@@ -23,30 +23,59 @@ public class Main {
         int tempo_corrido = p.get(0).getChegada();
         int quantum = 2;
         int contador = 0;
-        int cont_exec = 0;
-        int cont_processo = 1;
-        ArrayList<Processo> exec = new ArrayList<>();
-        exec.add(p.get(0));
-        Processo p_temp = exec.get(0);
-        
-        while(!exec.isEmpty()){
-            p_temp.setTmprest(p_temp.getTmprest() - 1);
-            contador++;
-            tempo_corrido++;
-            
-            if(p_temp.getTmprest() == 0){ //Se o processo acaba, remove da fila de execução
-                exec.remove(cont_exec);
-                contador = 0;
-            }else if(contador == quantum){ //Retira do processamento e substitui
-                exec.set(cont_exec, p_temp);
-                contador = 0;
-                cont_exec++;
-            }
-            if(p.get(cont_processo).getChegada() == tempo_corrido){
-                exec.add(p.get(cont_processo));
-                cont_processo++;
+        boolean execucao = true;
+        ArrayList<Processo> exec = new ArrayList<>(); //Fila de prontos
+        ArrayList<Processo> conc = new ArrayList<>(); //Fila de concluídos
+        for (Processo p1 : p) {
+            if (p1.getChegada() == tempo_corrido) {
+                exec.add(p1);
             }
         }
+
+        Processo p_temp = exec.get(0);
+        exec.remove(0);
+
+        while (true) {
+            if (p_temp == null) {
+                if (exec.isEmpty()) {
+                    break;
+                }
+                p_temp = exec.get(0);
+                exec.remove(0);
+                p_temp.setEspera_pronto(p_temp.getEspera_pronto() + (tempo_corrido - p_temp.getChegada()));
+            }
+            //CPU
+            p_temp.setTmprest(p_temp.getTmprest() - 1);
+            contador++;
+            tempo_corrido = tempo_corrido + 1;
+            for (Processo p1 : p) { //Procura processo para adicionar a fila
+                if (p1.getChegada() == tempo_corrido) {
+                    exec.add(p1);
+                } else if (p1.getChegada() > tempo_corrido) {
+                    break;
+                }
+            }
+
+            if (p_temp.getTmprest() == 0) { //Se o processo acaba, remove da CPU
+                contador = 0;
+                //System.out.println("Na CPU: " + p_temp.getNome());
+                conc.add(p_temp);
+                p_temp = null;
+            } else if (contador == quantum) { //Retira do processamento e joga na fila
+                //System.out.println("Na CPU: " + p_temp.getNome());
+                p_temp.setChegada(tempo_corrido);
+                exec.add(p_temp);
+                contador = 0;
+                p_temp = null;
+            }
+        }
+        float temp_espera = 0;
+        for(int i = 0; i < conc.size(); i++){
+            System.out.println(conc.get(i).getNome() + " ficou " + conc.get(i).getEspera_pronto());
+            temp_espera = temp_espera + conc.get(i).getEspera_pronto();
+        }
+        
+        System.out.println("RR " + f.format(temp_espera/conc.size()));
     }
 
     private static void algFCFS() {
