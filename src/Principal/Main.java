@@ -17,17 +17,18 @@ import java.util.Comparator;
 public class Main {
 
     private static ArrayList<Processo> p = new ArrayList<>();
-    private static DecimalFormat f = new DecimalFormat("#.#");
+    private static DecimalFormat f = new DecimalFormat("#.0");
 
     private static void algRR() {
-        int tempo_corrido = p.get(0).getChegada();
+        int tempo_corrido = p.get(0).getClone().getChegada();
         int quantum = 2;
         int contador = 0;
         ArrayList<Processo> exec = new ArrayList<>(); //Fila de prontos
         ArrayList<Processo> conc = new ArrayList<>(); //Fila de concluídos
+
         for (Processo p1 : p) {
             if (p1.getChegada() == tempo_corrido) {
-                exec.add(p1);
+                exec.add(p1.getClone());
             }
         }
 
@@ -44,7 +45,7 @@ public class Main {
                 p_temp = exec.get(0);
                 exec.remove(0);
                 p_temp.setEspera_pronto(p_temp.getEspera_pronto() + (tempo_corrido - p_temp.getContexto()));
-                if(p_temp.isPexec()){
+                if (p_temp.isPexec()) {
                     p_temp.setPexec(false);
                     p_temp.setTemp_resp(tempo_corrido - p_temp.getChegada());
                 }
@@ -55,7 +56,7 @@ public class Main {
             tempo_corrido = tempo_corrido + 1;
             for (Processo p1 : p) { //Procura processo para adicionar a fila
                 if (p1.getChegada() == tempo_corrido) {
-                    exec.add(p1);
+                    exec.add(p1.getClone());
                 } else if (p1.getChegada() > tempo_corrido) {
                     break;
                 }
@@ -76,13 +77,83 @@ public class Main {
         float temp_espera = 0;
         float temp_resposta = 0;
         float temp_retorno = 0;
-        for(int i = 0; i < conc.size(); i++){
+        for (int i = 0; i < conc.size(); i++) {
             temp_espera = temp_espera + conc.get(i).getEspera_pronto();
             temp_resposta = temp_resposta + conc.get(i).getTemp_resp();
             temp_retorno = temp_retorno + conc.get(i).getTemp_ret();
         }
-        
-        System.out.println("RR " + f.format(temp_retorno/conc.size()) + " " + f.format(temp_resposta/conc.size()) + " " + f.format(temp_espera/conc.size()));
+
+        System.out.println("RR " + f.format(temp_retorno / conc.size()) + " " + f.format(temp_resposta / conc.size()) + " " + f.format(temp_espera / conc.size()));
+    }
+
+    private static void algSJF() {
+        int tempo_corrido = p.get(0).getClone().getChegada();
+        ArrayList<Processo> exec = new ArrayList<>();
+        ArrayList<Processo> conc = new ArrayList<>();
+        Processo p_temp = null;
+        boolean alt = true;
+        for (Processo p1 : p) {
+            if (p1.getChegada() == tempo_corrido) {
+                exec.add(p1.getClone());
+            }
+        }
+
+        while (true) {
+            if (exec.size() > 1 && alt) {
+                Collections.sort(exec, new Comparator() {
+                    @Override
+                    public int compare(Object o1, Object o2) {
+                        Processo p1 = (Processo) o1;
+                        Processo p2 = (Processo) o2;
+                        return p1.getDuracao() < p2.getDuracao() ? -1 : (p1.getDuracao() > p2.getDuracao() ? +1 : 0);
+                    }
+                });
+                alt = false;
+            }
+            if (p_temp == null) {
+                if (exec.isEmpty()) {
+                    break;
+                }
+                p_temp = exec.get(0);
+                exec.remove(0);
+                p_temp.setTemp_resp(tempo_corrido - p_temp.getChegada());
+            }
+            while (p_temp.getTmprest() != 0) {
+                if (alt) {
+                    Collections.sort(exec, new Comparator() {
+                        @Override
+                        public int compare(Object o1, Object o2) {
+                            Processo p1 = (Processo) o1;
+                            Processo p2 = (Processo) o2;
+                            return p1.getDuracao() < p2.getDuracao() ? -1 : (p1.getDuracao() > p2.getDuracao() ? +1 : 0);
+                        }
+                    });
+                    alt = false;
+                }
+                p_temp.setTmprest(p_temp.getTmprest() - 1);
+
+                tempo_corrido++;
+
+                for (Processo p1 : p) {
+                    if (p1.getChegada() == tempo_corrido) {
+                        exec.add(p1.getClone());
+                        alt = true;
+                    }
+                }
+            }
+            p_temp.setTemp_ret(tempo_corrido - p_temp.getChegada());
+            conc.add(p_temp);
+            p_temp = null;
+        }
+
+        float tempo_resposta = 0;
+        float tempo_retorno = 0;
+
+        for (Processo p1 : conc) {
+            tempo_resposta = tempo_resposta + p1.getTemp_resp();
+            tempo_retorno = tempo_retorno + p1.getTemp_ret();
+        }
+        System.out.println("SJF " + f.format(tempo_retorno / conc.size()) + " " + f.format(tempo_resposta / conc.size()) + " " + f.format(tempo_resposta / conc.size()));
     }
 
     private static void algFCFS() {
@@ -165,9 +236,9 @@ public class Main {
 
     public static void exibeArray() {
         if (!p.isEmpty()) {
-            for (Processo p1 : p) {
+            p.forEach((p1) -> {
                 System.out.println(p1.toString());
-            }
+            });
         }
     }
 
@@ -181,9 +252,8 @@ public class Main {
         }
 
         LeArquivo(arq);
-        //exibeArray();
         algFCFS();
-        //exibeArray();
+        algSJF();
         algRR();
     }
 }

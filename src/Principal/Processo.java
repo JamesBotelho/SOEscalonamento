@@ -9,7 +9,8 @@ package Principal;
  *
  * @author James
  */
-public class Processo {
+public class Processo implements Cloneable {
+
     private String nome;
     private int duracao;
     private int tmprest;
@@ -111,14 +112,20 @@ public class Processo {
     public void setContexto(int contexto) {
         this.contexto = contexto;
     }
-    
-    
-    
-    
+
+    public Processo getClone() {
+        try {
+            // call clone in Object.
+            return (Processo) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println(" Cloning not allowed. ");
+            return this;
+        }
+    }
+
     @Override
     public String toString() {
         return "Processo{" + "nome=" + nome + ", duracao=" + duracao + ", tmprest=" + tmprest + ", chegada=" + chegada + '}';
     }
-    
-    
+
 }
