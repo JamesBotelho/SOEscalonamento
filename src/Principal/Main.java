@@ -17,7 +17,7 @@ import java.util.Comparator;
 public class Main {
 
     private static ArrayList<Processo> p = new ArrayList<>();
-    private static DecimalFormat f = new DecimalFormat("#.0");
+    private static DecimalFormat f = new DecimalFormat("0.0");
 
     private static void algRR() {
         int tempo_corrido = p.get(0).getClone().getChegada();
